@@ -4,7 +4,7 @@
 #
 Name     : azure-configs
 Version  : 1.0.0
-Release  : 12
+Release  : 13
 URL      : http://localhost/cgit/projects/azure-configs/snapshot/azure-configs-1.0.0.tar.gz
 Source0  : http://localhost/cgit/projects/azure-configs/snapshot/azure-configs-1.0.0.tar.gz
 Source1  : fcopy.service
@@ -13,8 +13,9 @@ Source3  : vss.service
 Summary  : No detailed summary available
 Group    : Development/Tools
 License  : Apache-2.0
-Requires: azure-configs-config
-Requires: azure-configs-autostart
+Requires: azure-configs-autostart = %{version}-%{release}
+Requires: azure-configs-config = %{version}-%{release}
+Requires: azure-configs-services = %{version}-%{release}
 
 %description
 No detailed description available
@@ -35,38 +36,55 @@ Group: Default
 config components for the azure-configs package.
 
 
+%package services
+Summary: services components for the azure-configs package.
+Group: Systemd services
+
+%description services
+services components for the azure-configs package.
+
+
 %prep
 %setup -q -n azure-configs-1.0.0
+cd %{_builddir}/azure-configs-1.0.0
 
 %build
 export http_proxy=http://127.0.0.1:9/
 export https_proxy=http://127.0.0.1:9/
 export no_proxy=localhost,127.0.0.1,0.0.0.0
-export LANG=C
-export SOURCE_DATE_EPOCH=1510691806
+export LANG=C.UTF-8
+export SOURCE_DATE_EPOCH=1604083946
+export GCC_IGNORE_WERROR=1
+export AR=gcc-ar
+export RANLIB=gcc-ranlib
+export NM=gcc-nm
+export CFLAGS="$CFLAGS -O3 -ffat-lto-objects -flto=4 "
+export FCFLAGS="$FFLAGS -O3 -ffat-lto-objects -flto=4 "
+export FFLAGS="$FFLAGS -O3 -ffat-lto-objects -flto=4 "
+export CXXFLAGS="$CXXFLAGS -O3 -ffat-lto-objects -flto=4 "
 %autogen --disable-static
-make V=1  %{?_smp_mflags}
+make  %{?_smp_mflags}
 
 %check
-export LANG=C
+export LANG=C.UTF-8
 export http_proxy=http://127.0.0.1:9/
 export https_proxy=http://127.0.0.1:9/
 export no_proxy=localhost,127.0.0.1,0.0.0.0
-make VERBOSE=1 V=1 %{?_smp_mflags} check
+make %{?_smp_mflags} check
 
 %install
-export SOURCE_DATE_EPOCH=1510691806
+export SOURCE_DATE_EPOCH=1604083946
 rm -rf %{buildroot}
 %make_install
 mkdir -p %{buildroot}/usr/lib/systemd/system
 install -m 0644 %{SOURCE1} %{buildroot}/usr/lib/systemd/system/fcopy.service
 install -m 0644 %{SOURCE2} %{buildroot}/usr/lib/systemd/system/kvp.service
 install -m 0644 %{SOURCE3} %{buildroot}/usr/lib/systemd/system/vss.service
-## make_install_append content
+## install_append content
 mkdir -p %{buildroot}/usr/lib/systemd/system/multi-user.target.wants
 ln -s ../kvp.service %{buildroot}/usr/lib/systemd/system/multi-user.target.wants/
 ln -s ../vss.service %{buildroot}/usr/lib/systemd/system/multi-user.target.wants/
-## make_install_append end
+## install_append end
 
 %files
 %defattr(-,root,root,-)
@@ -78,9 +96,12 @@ ln -s ../vss.service %{buildroot}/usr/lib/systemd/system/multi-user.target.wants
 
 %files config
 %defattr(-,root,root,-)
+/usr/lib/udev/rules.d/99-balloon.rules
+
+%files services
+%defattr(-,root,root,-)
 %exclude /usr/lib/systemd/system/multi-user.target.wants/kvp.service
 %exclude /usr/lib/systemd/system/multi-user.target.wants/vss.service
 /usr/lib/systemd/system/fcopy.service
 /usr/lib/systemd/system/kvp.service
 /usr/lib/systemd/system/vss.service
-/usr/lib/udev/rules.d/99-balloon.rules
