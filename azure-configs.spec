@@ -4,7 +4,7 @@
 #
 Name     : azure-configs
 Version  : 1.0.0
-Release  : 13
+Release  : 14
 URL      : http://localhost/cgit/projects/azure-configs/snapshot/azure-configs-1.0.0.tar.gz
 Source0  : http://localhost/cgit/projects/azure-configs/snapshot/azure-configs-1.0.0.tar.gz
 Source1  : fcopy.service
