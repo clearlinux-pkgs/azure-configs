@@ -3,7 +3,7 @@ Description=fcopy daemon
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/hv_fcopy_daemon -n
+ExecStart=/usr/bin/hv_fcopy_uio_daemon -n
 
 [Install]
 WantedBy=multi-user.target
